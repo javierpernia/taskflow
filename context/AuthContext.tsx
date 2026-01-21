@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, ReactNode } from "react";
+import Cookies from "js-cookie";
 
 // 1. se define como se va a ver el usuario (null si no hay)
 type User = {
@@ -30,11 +31,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // se definie la funcion login
   const login = (name: string) => {
     setUser({ name }); // se actualiza el usuario
+    Cookies.set('user', name);
   }
 
   // se definie la funcion logout
   const logout = () => {
     setUser(null); // se borra el usuario
+    Cookies.remove('user');
   }
 
 
