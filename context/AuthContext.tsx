@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import Cookies from "js-cookie";
 
 // 1. se define como se va a ver el usuario (null si no hay)
@@ -12,6 +12,7 @@ type User = {
 
 interface userContextType {
   user: User; // estado actual
+  isInitialized: boolean; // 22/01/2026 estado de inicializacion de user
   login: (name: string) => void; // funcion para iniciar sesion
   logout: () => void; // funcion para cerrar sesion
 }
@@ -19,6 +20,7 @@ interface userContextType {
 // 3. Se crea el contexto (analogía a tablero de anuncios)
 const AuthContext = createContext<userContextType>({
   user: null,
+  isInitialized: false, // 22/01/2026 estado de inicializacion de user
   login: () => { }, // funciones vacias por defecto (para evitar errores de compilacion)
   logout: () => { },
 });
@@ -27,6 +29,16 @@ const AuthContext = createContext<userContextType>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   // se define el estado inicial del usuario (el que todos vana ver)
   const [user, setUser] = useState<User>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false); // 22/01/2026 estado de inicializacion de user
+
+  useEffect(() => {
+    const savedUser = Cookies.get('user');
+    console.log("cookie leida:", savedUser);
+    if (savedUser) {
+      setUser({ name: savedUser });
+    }
+    setIsInitialized(true); // 22/01/2026 estado de inicializacion de user
+  }, []);
 
   // se definie la funcion login
   const login = (name: string) => {
@@ -42,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }} >
+    <AuthContext.Provider value={{ user, isInitialized, login, logout }} >
       {children}
     </AuthContext.Provider>
   );
