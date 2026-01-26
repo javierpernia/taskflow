@@ -1,13 +1,17 @@
 'use client';
 
+import KanbanBoard from "@/components/taskcards/KanbanBoard";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTasks } from "@/context/TaskContext";
 
 export default function DashboardPage() {
   const { user, logout, isInitialized } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { dispatch } = useTasks(); // 1. se usa el hook del contexto
+  const [newTask, setNewTask] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
@@ -18,13 +22,41 @@ export default function DashboardPage() {
     return <div className="flex h-screen items-center justify-center p-4 text-white bg-[#141414]">Cargando...</div>
   };
 
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTask.trim()) return;
+    dispatch({ type: 'ADD_TASK', payload: newTask.trim() });
+    setNewTask('');
+  }
+
   return (
-    <div className="flex h-screen items-center justify-center p-4 text-black bg-[#141414]">
+    <div className="flex flex-col h-screen items-center justify-center p-4 text-black bg-[#141414]">
       <section className="bg-[#1f1f1f] text-white w-[400px] max-w-md rounded-xl p-8 flex flex-col gap-4">
         <h1 className="text-2xl font-bold text-center">Bienvenido, {user?.name}!</h1>
         <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600 transition-colors">Cerrar sesion</button>
         <button onClick={toggleTheme} className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-600 transition-colors">Cambiar tema a modo {theme}</button>
       </section>
+      {/* 2. Se muestra el formulario para agregar tareas */}
+      <section className="bg-[#1f1f1f] text-white w-[400px] max-w-md rounded-xl p-8 flex flex-col gap-4">
+        <form onSubmit={handleAddTask} className="mb-6">
+          <input
+            type="text"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            placeholder="Agregar tarea..."
+            className="w-full p-2 rounded mr-2 bg-white text-black"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 rounded-lg bg-green-600 text-white"
+          >
+            Agregar tarea
+          </button>
+        </form>
+      </section>
+
+      {/* 3. Se muestra el tablero de kanban */}
+      <KanbanBoard />
     </div>
   );
 }

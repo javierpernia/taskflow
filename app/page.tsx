@@ -1,36 +1,29 @@
 'use client';
 
-import Image from "next/image";
-import { useAuth } from "@/context/AuthContext"; // 1. se importa el hook personalizado
+import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function HomePage() {
+export default function DashboardPage() {
+  const { user, logout, isInitialized } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
 
-  // 2. se usa el hook para obtener los datos del contexto (se mira el tablero de anuncios)
-  const { user, login, logout } = useAuth();
+  useEffect(() => {
+    if (isInitialized && !user) router.push('/login');
+  }, [isInitialized, user, router]);
+
+  if (!isInitialized) {
+    return <div className="flex h-screen items-center justify-center p-4 text-white bg-[#141414]">Cargando...</div>
+  };
 
   return (
     <div className="flex h-screen items-center justify-center p-4 text-black bg-[#141414]">
-      <section className="bg-[#1f1f1f] text-white w-[400px] max-w-md rounded-xl p-8">
-        <h1 className="text-2xl font-bold text-center">Bienvenido a TaskFlow</h1>
-        {/* 3. Se muestra el nombre del usuario logeado */}
-        {user ? (
-          <div>
-            <p>Hola <strong>{user.name}</strong></p>
-            <button onClick={logout}>Cerrar sesion</button>
-          </div>
-        ) : (
-          <>
-            <p className="text-center text-gray-500">Nadie ha entrado aún... ¿Quieres ser el primero?</p>
-            <div className="flex flex-col gap-4 mt-4">
-              <button onClick={() => login('Javier')}>
-                Iniciar sesion como Javier
-              </button>
-              <button onClick={() => login('Maria')}>
-                Iniciar sesion como Maria
-              </button>
-            </div>
-          </>
-        )}
+      <section className="bg-[#1f1f1f] text-white w-[400px] max-w-md rounded-xl p-8 flex flex-col gap-4">
+        <h1 className="text-2xl font-bold text-center">Bienvenido, {user?.name}!</h1>
+        <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-red-600 transition-colors">Cerrar sesion</button>
+        <button onClick={toggleTheme} className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-600 transition-colors">Cambiar tema a modo {theme}</button>
       </section>
     </div>
   );
