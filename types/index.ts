@@ -17,4 +17,13 @@ type TaskAction =
   | { type: 'MOVE_TASK'; payload: { id: string; to: TaskStatus } }
   | { type: 'DELETE_TASK'; payload: string };
 
-export type { User, Task, TaskAction, TaskStatus };
+
+// Timer
+type PomodoroMode = 'work' | 'break';
+
+type Timer = {
+  mode: PomodoroMode;
+  timeLeft: number;
+}
+
+export type { User, Task, TaskAction, TaskStatus, Timer, PomodoroMode };
